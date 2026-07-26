@@ -19,6 +19,8 @@ export default {
       };
       const { pathname } = new URL(request.url);
       switch (true) {
+        case pathname === "/":
+          return handleHome();
         case pathname.endsWith("/chat/completions"):
           assert(request.method === "POST");
           return handleCompletions(await request.json(), apiKey)
@@ -62,6 +64,40 @@ const handleOPTIONS = async () => {
       "Access-Control-Allow-Headers": "*",
     }
   });
+};
+
+const handleHome = () => {
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenAI Gemini Proxy</title>
+  <style>
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f172a; color: #e5e7eb; }
+    main { width: min(560px, calc(100vw - 40px)); }
+    .status { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid #22c55e; border-radius: 999px; color: #bbf7d0; font-size: 14px; }
+    h1 { margin: 22px 0 10px; font-size: 30px; line-height: 1.2; }
+    p { margin: 0 0 16px; color: #cbd5e1; line-height: 1.7; }
+    code { display: block; padding: 14px 16px; border-radius: 8px; background: #020617; color: #93c5fd; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="status">Service is running</div>
+    <h1>OpenAI Gemini Proxy</h1>
+    <p>This site is an API service. Use the base URL below in your app, together with your Gemini API key.</p>
+    <code>https://gemini.1089.ltd/v1</code>
+  </main>
+</body>
+</html>`;
+  return new Response(html, fixCors({
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
+  }));
 };
 
 const BASE_URL = "https://generativelanguage.googleapis.com";
